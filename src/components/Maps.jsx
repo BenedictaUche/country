@@ -1,13 +1,28 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Card, Container, Dropdown, DropdownButton } from "react-bootstrap";
+import Pagination from "../assets/customhooks/Pagination";
+// import Pagination from "react-js-pagination";
+
 
 export default function Maps() {
+
+  let PageSize = 10
+
+
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [selectedRegion, setSelectedRegion] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const currentTableData = useMemo(() => {
+    const firstPageIndex = (currentPage - 1) * PageSize;
+    const lastPageIndex = firstPageIndex + PageSize;
+    return data.slice(firstPageIndex, lastPageIndex);
+  }, [currentPage]);
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -120,7 +135,7 @@ export default function Maps() {
       </div>
 
       <div>
-        {searchResults.map((country) => (
+        {currentTableData.map((country) => (
           
           <Card>
             <div key={country.name}>
@@ -132,6 +147,13 @@ export default function Maps() {
           
         ))}
       </div>
+      <Pagination
+        className="pagination-bar"
+        currentPage={currentPage}
+        totalCount={data.length}
+        pageSize={PageSize}
+        onPageChange={page => setCurrentPage(page)}
+      />
       </Container>
     </>
   );
