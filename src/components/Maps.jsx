@@ -1,8 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { Card, Container, Dropdown, DropdownButton } from "react-bootstrap";
 import { Link, useParams } from "react-router-dom";
-import Pagination from "../assets/customhooks/Pagination";
-// import Pagination from "react-js-pagination";
+import ReactPaginate from "react-paginate";
 
 export default function Maps() {
   const [data, setData] = useState(null);
@@ -12,7 +11,9 @@ export default function Maps() {
   const [searchResults, setSearchResults] = useState([]);
   const [selectedRegion, setSelectedRegion] = useState(null);
   const [sortBy, setSortBy] = useState("name-asc");
-  
+  const [currentPage, setCurrentPage] = useState(0);
+  const itemsPerPage = 10;
+
   const history = useParams();
 
   useEffect(() => {
@@ -40,26 +41,30 @@ export default function Maps() {
     if (data) {
       // To filter data based on search value and region
       const filteredData = data.filter((country) => {
-        const nameMatch = country.name.toLowerCase().includes(searchTerm.toLowerCase());
-        const regionMatch = !selectedRegion || selectedRegion === "All Countries" || country.region === selectedRegion;
+        const nameMatch = country.name
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase());
+        const regionMatch =
+          !selectedRegion ||
+          selectedRegion === "All Countries" ||
+          country.region === selectedRegion;
         return nameMatch && regionMatch;
       });
 
       //To sort data based on selected option
-      const sortedData = filteredData.sort((x,y) => {
+      const sortedData = filteredData.sort((x, y) => {
         const nameOne = x.name.toLowerCase();
         const nameTwo = y.name.toLowerCase();
-        if(sortBy === 'name-asc') {
+        if (sortBy === "name-asc") {
           return nameOne.localeCompare(nameTwo);
-        } else if(sortBy === 'name-desc') {
+        } else if (sortBy === "name-desc") {
           return nameTwo.localeCompare(nameOne);
         }
         return 0;
-      })
+      });
       setSearchResults(sortedData);
     }
   }, [data, searchTerm, selectedRegion, sortBy]);
-  
 
   const handleChange = (event) => {
     setSearchTerm(event.target.value);
@@ -68,18 +73,29 @@ export default function Maps() {
   const handleRegionChange = (region) => {
     setSelectedRegion(region === "All Countries" ? null : region);
   };
-  
+
   const handleSortChange = (sortOption) => {
     setSortBy(sortOption);
   };
 
+  const handlePageChange = (selectedPage) => {
+    setCurrentPage(selectedPage.selected);
+  };
+
   if (loading) {
-    return <div className="font-bold text-4xl text-center mt-10">Loading...</div>;
+    return (
+      <div className="font-bold text-4xl text-center mt-10">Loading...</div>
+    );
   }
 
   if (error) {
     return <div>Error: {error}</div>;
   }
+
+  // Pagination calculations
+  const offset = currentPage * itemsPerPage;
+  const currentItems = searchResults.slice(offset, offset + itemsPerPage);
+  const totalPages = Math.ceil(searchResults.length / itemsPerPage);
 
   return (
     <>
@@ -118,9 +134,7 @@ export default function Maps() {
             </DropdownButton>
           </div>
 
-
           <div>
-          
             <DropdownButton
               id="dropdown-basic-button"
               className="bg-gray-900 border-none rounded-lg border-gray-900 sm:w-auto max-w-full"
@@ -173,18 +187,39 @@ export default function Maps() {
         </div>
 
         <div>
-          {searchResults.map((country) => (
-            <Link to={`/country/${country.name}`} onClick={() => history.push(`/country/${country.name}`)}>
-              <Card className="mb-8 p-4">
-                <div key={country.name}>
-                  <h2 className="font-bold text-2xl mb-3">{country.name}</h2>
-                  <p className="font-semibold">Region: {country.region}</p>
-                  <p className="font-semibold">Area: {country.area}</p>
-                </div>
-              </Card>
-            </Link>
-          ))}
+          {(currentItems.length > 0 ? currentItems : searchResults).map(
+            (country) => (
+              <Link
+                to={`/country/${country.name}`}
+                onClick={() => history.push(`/country/${country.name}`)}
+              >
+                <Card className="mb-8 p-4">
+                  <div key={country.name}>
+                    <h2 className="font-bold text-2xl mb-3">{country.name}</h2>
+                    <p className="font-semibold">Region: {country.region}</p>
+                    <p className="font-semibold">Area: {country.area}</p>
+                  </div>
+                </Card>
+              </Link>
+            )
+          )}
         </div>
+
+        <ReactPaginate
+          previousLabel="<  Previous"
+          nextLabel="  Next >"
+          breakLabel={"..."}
+          breakClassName={"break-me"}
+          // The total number of pages
+          pageCount={totalPages} 
+          marginPagesDisplayed={2}
+          pageRangeDisplayed={5}
+          onPageChange={handlePageChange}
+          containerClassName={"pagination"}
+          subContainerClassName={"pages pagination"}
+          activeClassName={"active"}
+          className="text-center flex justify-center font-bold text-xl text-white"
+        />
       </Container>
     </>
   );

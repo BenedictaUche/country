@@ -1,24 +1,26 @@
 import { usePagination, DOTS } from './usePagination';
-import './pagination.scss'
-const Pagination = props => {
+import classnames from 'classnames';
+import './pagination.scss';
+
+const Pagination = (props) => {
   const {
     onPageChange,
     totalCount,
     siblingCount = 1,
     currentPage,
     pageSize,
-    className
+    className,
   } = props;
 
   const paginationRange = usePagination({
     currentPage,
     totalCount,
     siblingCount,
-    pageSize
+    pageSize,
   });
 
-  // If there are less than 2 times in pagination range we shall not render the component
-  if (currentPage === 0 || paginationRange.length < 2) {
+  // If there are less than 2 pages in the pagination range, we shall not render the component
+  if (!paginationRange || paginationRange.length < 2) {
     return null;
   }
 
@@ -35,27 +37,31 @@ const Pagination = props => {
     <ul
       className={classnames('pagination-container', { [className]: className })}
     >
-       {/* Left navigation arrow */}
+      {/* Left navigation arrow */}
       <li
         className={classnames('pagination-item', {
-          disabled: currentPage === 1
+          disabled: currentPage === 1,
         })}
         onClick={onPrevious}
       >
         <div className="arrow left" />
       </li>
-      {paginationRange.map(pageNumber => {
-         
+      {paginationRange.map((pageNumber, index) => {
         // If the pageItem is a DOT, render the DOTS unicode character
         if (pageNumber === DOTS) {
-          return <li className="pagination-item dots">&#8230;</li>;
+          return (
+            <li key={index} className="pagination-item dots">
+              &#8230;
+            </li>
+          );
         }
-		
+
         // Render our Page Pills
         return (
           <li
+            key={index}
             className={classnames('pagination-item', {
-              selected: pageNumber === currentPage
+              selected: pageNumber === currentPage,
             })}
             onClick={() => onPageChange(pageNumber)}
           >
@@ -63,10 +69,10 @@ const Pagination = props => {
           </li>
         );
       })}
-      {/*  Right Navigation arrow */}
+      {/* Right Navigation arrow */}
       <li
         className={classnames('pagination-item', {
-          disabled: currentPage === lastPage
+          disabled: currentPage === lastPage,
         })}
         onClick={onNext}
       >
