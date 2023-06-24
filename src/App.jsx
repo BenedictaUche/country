@@ -9,7 +9,6 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />}></Route>
         <Route path="/home" element={<Home />}></Route>
-        {/* <Route path="/country" element={<CountryDetails />}></Route> */}
         <Route path="/country/:name" element={<CountryDetails />}></Route>
       </Routes>
     </BrowserRouter>
