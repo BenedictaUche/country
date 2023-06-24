@@ -100,12 +100,12 @@ export default function Maps() {
   return (
     <>
       <Container>
-        <div className="flex justify-between mt-[10rem] mb-10">
+        <div className="flex justify-between mt-[10rem] sm:flex-row flex-col mb-10">
           <div className="buttons">
             <input
               type="text"
               placeholder="Search for a country"
-              className="form-control bg-white-800"
+              className="form-control bg-white-800 sm:mb-0 mb-5"
               value={searchTerm}
               onChange={handleChange}
             />
@@ -114,7 +114,7 @@ export default function Maps() {
           <div>
             <DropdownButton
               id="dropdown-sort"
-              className="bg-gray-900 border-none rounded-lg border-gray-900 sm:w-auto max-w-full"
+              className="bg-gray-900 border-none rounded-lg border-gray-900 sm:w-auto max-w-full sm:mb-0 mb-5"
               title="Sort by"
             >
               <Dropdown.Item
